@@ -18,11 +18,13 @@ telegram:
     - <id 2>
     - ...
 
+# Elasticsearch client configuration
 elasticsearch:
   host: http://your-elastic-host:9200
   index:
     # Specify the date format to use as the index suffix
     # "-" is automatically added between the prefix and the date
-    # If omitted, only the prefix (without trailing "-") is used as index name
+    # The following configuration will result in an index like "telegram-2020.03.18"
+    # Without "date_format" the index will be named "telegram"
     date_format: %Y.%m.%d
     prefix: telegram
