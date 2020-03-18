@@ -1,0 +1,28 @@
+# Telegram client configuration
+telegram:
+  api_id: <your API ID from https://my.telegram.org>
+  api_hash: <your API hash from https://my.telegram.org>
+  session_file: /path/to/your/client.session
+
+  # Chat types which should be monitored
+  chat_types:
+    - contact # Users added as contact
+    - user # Users not added as contact
+    - group # Groups (including mega groups)
+    - channel # Channels (excluding mega groups)
+
+  # List of chats to monitor additionally to those specified using "chat_types"
+  # The command "list-chats" can be used to get specific IDs
+  additional_chats:
+    - <id 1>
+    - <id 2>
+    - ...
+
+elasticsearch:
+  host: http://your-elastic-host:9200
+  index:
+    # Specify the date format to use as the index suffix
+    # "-" is automatically added between the prefix and the date
+    # If omitted, only the prefix (without trailing "-") is used as index name
+    date_format: %Y.%m.%d
+    prefix: telegram
