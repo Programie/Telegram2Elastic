@@ -26,5 +26,5 @@ elasticsearch:
     # "-" is automatically added between the prefix and the date
     # The following configuration will result in an index like "telegram-2020.03.18"
     # Without "date_format" the index will be named "telegram"
-    date_format: %Y.%m.%d
+    date_format: "%Y.%m.%d"
     prefix: telegram
