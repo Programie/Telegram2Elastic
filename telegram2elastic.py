@@ -189,8 +189,16 @@ def main():
         logging.error("Unable to parse config file '{}'".format(arguments.config))
         exit(1)
 
+    elasticsearch_username = get_config("elasticsearch.username", required=False)
+    elasticsearch_password = get_config("elasticsearch.password", required=False)
+
+    if elasticsearch_username is not None and elasticsearch_password is not None:
+        elasticsearch_httpauth = [elasticsearch_username, elasticsearch_password]
+    else:
+        elasticsearch_httpauth = None
+
     tg_client = TelegramClient(session=os.path.expanduser(get_config("telegram.session_file")), api_id=get_config("telegram.api_id"), api_hash=get_config("telegram.api_hash"))
-    es_client = Elasticsearch(hosts=get_config("elasticsearch.host", "localhost"))
+    es_client = Elasticsearch(hosts=get_config("elasticsearch.host", "localhost"), http_auth=elasticsearch_httpauth)
 
     with tg_client:
         if arguments.command == "listen":
