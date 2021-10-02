@@ -76,6 +76,23 @@ def is_chat_enabled(chat, chat_types=None):
     return chat_type in chat_types
 
 
+def prepare_chats(chats):
+    if isinstance(chats, list):
+        prepared_chats = []
+
+        for chat in chats:
+            prepared_chats.append(prepare_chats(chat))
+
+        return prepared_chats
+    else:
+        if chats.startswith("@"):
+            chats = chats[1:]
+        else:
+            chats = int(chats)
+
+        return chats
+
+
 async def get_chats(tg_client, chat_types=None):
     chats = []
 
@@ -136,7 +153,7 @@ async def task(tg_client, es_client, arguments):
             offset_date = None
 
         if arguments.chats:
-            chats = await tg_client.get_entity(arguments.chats)
+            chats = await tg_client.get_entity(prepare_chats(arguments.chats))
         else:
             chats = await get_chats(tg_client)
 
