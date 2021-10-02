@@ -42,7 +42,8 @@ Push Docker latest:
     # that built the image in the previous step, we pull it again locally
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     # Then we tag it "latest"
-    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest programie/telegram2elastic:latest
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA programie/telegram2elastic:latest
     # Annnd we push it.
     - docker push $CI_REGISTRY_IMAGE:latest
     - echo -n $DOCKER_HUB_TOKEN | docker login -u programie --password-stdin
@@ -61,7 +62,8 @@ Push Docker tag:
     - tags
   script:
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME programie/telegram2elastic:$CI_COMMIT_REF_NAME
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA programie/telegram2elastic:$CI_COMMIT_REF_NAME
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
     - echo -n $DOCKER_HUB_TOKEN | docker login -u programie --password-stdin
     - docker push programie/telegram2elastic:$CI_COMMIT_REF_NAME
