@@ -61,5 +61,5 @@ Push Docker tag:
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
-    - echo -n $DOCKER_HUB_TOKEN | docker login -u programie --password-stdin $DOCKER_HUB_TOKEN
+    - echo -n $DOCKER_HUB_TOKEN | docker login -u programie --password-stdin
     - docker push programie/telegram2elastic:$CI_COMMIT_REF_NAME
