@@ -133,7 +133,7 @@ async def index_message(es_client, message):
     else:
         index_name = "-".join([index_prefix, message.date.strftime(index_date_format)])
 
-    es_client.index(index_name, body=doc_data, id=message.id)
+    es_client.index(index=index_name, body=doc_data, id=message.id)
 
 
 async def listen_for_events(tg_client, es_client):
