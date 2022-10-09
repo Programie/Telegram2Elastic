@@ -21,6 +21,11 @@ telegram:
 # Elasticsearch client configuration
 elasticsearch:
   host: http://your-elastic-host:9200
+
+  # Username and password used to authenticate at Elasticsearch (optional)
+  username: <Elasticsearch user>
+  password: <Elasticsearch password>
+
   index:
     # Specify the date format to use as the index suffix
     # "-" is automatically added between the prefix and the date
