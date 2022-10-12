@@ -18,18 +18,23 @@ telegram:
     - <id 2>
     - ...
 
-# Elasticsearch client configuration
-elasticsearch:
-  host: http://your-elastic-host:9200
+outputs:
+    # Send messages to Elasticsearch
+  - type: elastic
+    host: http://your-elastic-host:9200
 
-  # Username and password used to authenticate at Elasticsearch (optional)
-  username: <Elasticsearch user>
-  password: <Elasticsearch password>
+    # Username and password used to authenticate at Elasticsearch (optional)
+    username: <Elasticsearch user>
+    password: <Elasticsearch password>
 
-  index:
-    # Specify the date format to use as the index suffix
-    # "-" is automatically added between the prefix and the date
-    # The following configuration will result in an index like "telegram-2020.03.18"
-    # Without "date_format" the index will be named "telegram"
-    date_format: "%Y.%m.%d"
-    prefix: telegram
+    # Format of the index to use (will be passed to strftime)
+    index_format: "telegram-%Y.%m.%d"
+
+    # Send messages to any host using TCP (e.g. for using TCP input of Logstash)
+  - type: tcp
+    host: some-host
+    port: 1234
+
+    # Write messages to a file (in JSON format - one JSON object per line)
+  - type: file
+    path: /path/to/your/file.log
