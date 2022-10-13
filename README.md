@@ -16,6 +16,16 @@ With the data stored in Elasticsearch, you can use applications like Kibana or G
 * Install the required Python modules using pip: `pip3 install -r requirements.txt`
 * Copy the provided config.sample.yml to config.yml and edit it to fit your needs
 
+## Outputs
+
+It is supported to write to multiple outputs. You may pick any combination of the following output types:
+
+* `elastic`: Write to an Elasticsearch instance
+* `file`: Write a line in JSON format for each message into a file
+* `tcp`: Send messages as JSON strings to any TCP socket
+
+It is also possible to configure the same output type multiple types but using different endpoints.
+
 ## Initial setup
 
 When started for the first time, the application will ask you to connect with your Telegram account.
