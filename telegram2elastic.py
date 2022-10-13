@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 import argparse
-import asyncio
 import importlib
 import logging
 import os
