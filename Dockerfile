@@ -1,10 +1,12 @@
 FROM python:3.8-buster
 
-RUN pip install elasticsearch telethon pyyaml
+COPY output/*.py /app/output/
+COPY requirements.txt telegram2elastic.py /app/
 
-COPY output /output
-COPY telegram2elastic.py /telegram2elastic.py
+WORKDIR /app
+
+RUN pip install -r requirements.txt
 
 VOLUME /sessions
 
-ENTRYPOINT ["/telegram2elastic.py"]
+ENTRYPOINT ["/app/telegram2elastic.py"]
