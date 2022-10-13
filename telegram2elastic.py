@@ -231,7 +231,7 @@ def main():
         elif arguments.command == "list-chats":
             telegram_reader.client.loop.run_until_complete(telegram_reader.list_chats(arguments.types))
         elif arguments.command == "listen":
-            loop = asyncio.new_event_loop()
+            loop = asyncio.get_event_loop()
             loop.create_task(telegram_reader.listen())
 
             try:
