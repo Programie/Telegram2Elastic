@@ -226,12 +226,13 @@ def main():
     telegram_reader = TelegramReader(config.get("telegram", {}), output_handler)
 
     with telegram_reader.client:
+        loop = telegram_reader.client.loop
+
         if arguments.command == "import-history":
-            telegram_reader.client.loop.run_until_complete(telegram_reader.import_history(arguments.start_date, arguments.chats))
+            loop.run_until_complete(telegram_reader.import_history(arguments.start_date, arguments.chats))
         elif arguments.command == "list-chats":
-            telegram_reader.client.loop.run_until_complete(telegram_reader.list_chats(arguments.types))
+            loop.run_until_complete(telegram_reader.list_chats(arguments.types))
         elif arguments.command == "listen":
-            loop = telegram_reader.client.loop
             loop.create_task(telegram_reader.listen())
 
             try:
