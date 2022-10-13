@@ -3,7 +3,7 @@ import logging
 import socket
 import time
 
-from telethon.utils import get_display_name
+from telegram2elastic import get_message_dict
 
 
 class Writer:
@@ -21,19 +21,11 @@ class Writer:
         self.socket.connect((self.host, self.port))
 
     async def write_message(self, message):
-        sender_user = await message.get_sender()
+        message_dict = await get_message_dict(message)
 
-        data = json.dumps({
-            "id": message.id,
-            "date": message.date.isoformat(),
-            "sender": {
-                "username": sender_user.username,
-                "firstName": sender_user.first_name,
-                "lastName": sender_user.last_name,
-            },
-            "chat": get_display_name(await message.get_chat()),
-            "message": message.text
-        }) + "\n"
+        message_dict["date"] = message_dict["date"].isoformat()
+
+        data = json.dumps(message_dict) + "\n"
 
         while True:
             try:

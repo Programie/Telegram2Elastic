@@ -1,5 +1,6 @@
 from elasticsearch import Elasticsearch
-from telethon.utils import get_display_name
+
+from telegram2elastic import get_message_dict
 
 
 class Writer:
@@ -17,17 +18,12 @@ class Writer:
         self.client = Elasticsearch(hosts=config.get("host", "localhost"), basic_auth=http_auth)
 
     async def write_message(self, message):
-        sender_user = await message.get_sender()
+        doc_data = await get_message_dict(message)
 
-        doc_data = {
-            "timestamp": message.date,
-            "sender": {
-                "username": sender_user.username,
-                "firstName": sender_user.first_name,
-                "lastName": sender_user.last_name,
-            },
-            "chat": get_display_name(await message.get_chat()),
-            "message": message.text
-        }
+        doc_data["timestamp"] = message.date
+
+        # get_message_dict() adds "id" and "date" which should not be in the body
+        del doc_data["id"]
+        del doc_data["date"]
 
         self.client.index(index=message.date.strftime(self.index_format), body=doc_data, id=message.id)

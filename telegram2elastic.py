@@ -17,6 +17,31 @@ from telethon.utils import get_display_name
 LOG_LEVEL_INFO = 35
 
 
+async def get_message_dict(message):
+    sender_user = await message.get_sender()
+
+    if isinstance(sender_user, Channel):
+        sender = {
+            "username": sender_user.username,
+            "firstName": sender_user.title,
+            "lastName": None
+        }
+    else:
+        sender = {
+            "username": sender_user.username,
+            "firstName": sender_user.first_name,
+            "lastName": sender_user.last_name
+        }
+
+    return {
+        "id": message.id,
+        "date": message.date,
+        "sender": sender,
+        "chat": get_display_name(await message.get_chat()),
+        "message": message.text
+    }
+
+
 class ChatType(Enum):
     GROUP = "group"
     CHANNEL = "channel"

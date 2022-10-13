@@ -1,7 +1,7 @@
 import json
 import os
 
-from telethon.utils import get_display_name
+from telegram2elastic import get_message_dict
 
 
 class Writer:
@@ -9,20 +9,10 @@ class Writer:
         self.path = os.path.expanduser(config.get("path"))
 
     async def write_message(self, message):
-        sender_user = await message.get_sender()
+        message_dict = await get_message_dict(message)
 
-        data = {
-            "id": message.id,
-            "date": message.date.isoformat(),
-            "sender": {
-                "username": sender_user.username,
-                "firstName": sender_user.first_name,
-                "lastName": sender_user.last_name,
-            },
-            "chat": get_display_name(await message.get_chat()),
-            "message": message.text
-        }
+        message_dict["date"] = message_dict["date"].isoformat()
 
         with open(self.path, "a") as output_file:
-            json.dump(data, output_file)
+            json.dump(message_dict, output_file)
             output_file.write("\n")
