@@ -10,6 +10,7 @@ import yaml
 
 from datetime import datetime
 from telethon import TelegramClient, events
+from telethon.tl.patched import Message
 from telethon.tl.types import User, Chat, Channel
 from telethon.utils import get_display_name
 
@@ -89,6 +90,10 @@ class OutputHandler:
         self.outputs.append(self.imports[output_type].Writer(config))
 
     async def write_message(self, message, is_chat_enabled: callable):
+        # message might not be an actual message (i.e. MessageService)
+        if not isinstance(message, Message):
+            return
+
         chat = await message.get_chat()
         chat_display_name = get_display_name(chat)
 
