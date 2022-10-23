@@ -20,7 +20,7 @@ telegram:
 
 outputs:
     # Send messages to Elasticsearch
-  - type: elastic
+  - type: elasticsearch
     host: http://your-elastic-host:9200
 
     # Username and password used to authenticate at Elasticsearch (optional)

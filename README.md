@@ -20,7 +20,7 @@ With the data stored in Elasticsearch, you can use applications like Kibana or G
 
 It is supported to write to multiple outputs. You may pick any combination of the following output types:
 
-* `elastic`: Write to an Elasticsearch instance
+* `elasticsearch`: Write to an Elasticsearch instance
 * `file`: Write a line in JSON format for each message into a file
 * `tcp`: Send messages as JSON strings to any TCP socket
 
