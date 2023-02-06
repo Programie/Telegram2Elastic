@@ -20,7 +20,9 @@ LOG_LEVEL_INFO = 35
 async def get_message_dict(message):
     sender_user = await message.get_sender()
 
-    if isinstance(sender_user, Channel):
+    if sender_user is None:
+        sender = None
+    elif isinstance(sender_user, Channel):
         sender = {
             "username": sender_user.username,
             "firstName": sender_user.title,
