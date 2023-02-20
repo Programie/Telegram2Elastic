@@ -26,6 +26,24 @@ It is supported to write to multiple outputs. You may pick any combination of th
 
 It is also possible to configure the same output type multiple times but using different endpoints.
 
+### Customize output map
+
+For each output, it is possible to customize the output map which is written to the output.
+
+The output map can be specified using the `output_map` config property of the output.
+
+Each property of the map defines a piece of Python code which should be executed to get the value for each field.
+
+By default, the following map is used:
+
+```yaml
+id: "message.id"
+date: "message.date"
+sender: "sender"
+chat: "get_display_name(await message.get_chat())"
+message: "message.text"
+```
+
 ## Initial setup
 
 When started for the first time, the application will ask you to connect with your Telegram account.
