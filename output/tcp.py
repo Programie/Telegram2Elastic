@@ -3,13 +3,14 @@ import logging
 import socket
 import time
 
-from telegram2elastic import get_message_dict
+from telegram2elastic import get_message_dict, json_default
 
 
 class Writer:
     def __init__(self, config: dict):
         self.host = config.get("host")
         self.port = config.get("port")
+        self.output_map = config.get("output_map")
 
         self.socket = None
 
@@ -21,11 +22,9 @@ class Writer:
         self.socket.connect((self.host, self.port))
 
     async def write_message(self, message):
-        message_dict = await get_message_dict(message)
+        message_dict = await get_message_dict(message, self.output_map)
 
-        message_dict["date"] = message_dict["date"].isoformat()
-
-        data = json.dumps(message_dict) + "\n"
+        data = json.dumps(message_dict, default=json_default) + "\n"
 
         while True:
             try:

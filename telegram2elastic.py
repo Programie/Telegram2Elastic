@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 
 import argparse
+import asyncio
+import base64
 import importlib
 import logging
 import os
@@ -17,7 +19,38 @@ from telethon.utils import get_display_name
 LOG_LEVEL_INFO = 35
 
 
-async def get_message_dict(message):
+def json_default(value):
+    if isinstance(value, bytes):
+        return base64.b64encode(value).decode("ascii")
+    elif isinstance(value, datetime):
+        return value.isoformat()
+    else:
+        return repr(value)
+
+
+async def async_exec(code, variables):
+    task = [None]
+
+    exec_variables = {
+        "asyncio": asyncio,
+        "task": task
+    }
+
+    exec_variables.update(variables)
+    exec("async def _async_exec():\n return {}\ntask[0] = asyncio.ensure_future(_async_exec())".format(code), exec_variables)
+    return await task[0]
+
+
+async def eval_map(input_map: dict, variables: dict):
+    output = {}
+
+    for key, expression in input_map.items():
+        output[key] = await async_exec(expression, variables)
+
+    return output
+
+
+async def get_message_dict(message, output_map_config: dict = None):
     sender_user = await message.get_sender()
 
     if sender_user is None:
@@ -35,13 +68,20 @@ async def get_message_dict(message):
             "lastName": sender_user.last_name
         }
 
-    return {
-        "id": message.id,
-        "date": message.date,
+    if output_map_config is None:
+        output_map_config = {
+            "id": "message.id",
+            "date": "message.date",
+            "sender": "sender",
+            "chat": "get_display_name(await message.get_chat())",
+            "message": "message.text"
+        }
+
+    return await eval_map(output_map_config, {
+        "message": message,
         "sender": sender,
-        "chat": get_display_name(await message.get_chat()),
-        "message": message.text
-    }
+        "get_display_name": get_display_name
+    })
 
 
 class ChatType(Enum):

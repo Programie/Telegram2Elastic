@@ -19,7 +19,7 @@ telegram:
     - ...
 
 outputs:
-    # Send messages to Elasticsearch
+  # Send messages to Elasticsearch
   - type: elasticsearch
     host: http://your-elastic-host:9200
 
@@ -30,11 +30,40 @@ outputs:
     # Format of the index to use (will be passed to strftime)
     index_format: "telegram-%Y.%m.%d"
 
+    # Specify your own output map to be used for each message
+    # The key defines the target property
+    # The value defines the Python code which should be executed to get the value for the property
+    # The keys "id" and "date" are not used as they are automatically mapped to the "id" and "timestamp" fields respectively
+    output_map:
+      sender: "sender"
+      chat: "get_display_name(await message.get_chat())"
+      message: "message.text"
+
     # Send messages to any host using TCP (e.g. for using TCP input of Logstash)
   - type: tcp
     host: some-host
     port: 1234
 
+    # Specify your own output map to be used for each message
+    # The key defines the target property
+    # The value defines the Python code which should be executed to get the value for the property
+    output_map:
+      id: "message.id"
+      date: "message.date"
+      sender: "sender"
+      chat: "get_display_name(await message.get_chat())"
+      message: "message.text"
+
     # Write messages to a file (in JSON format - one JSON object per line)
   - type: file
     path: /path/to/your/file.log
+
+    # Specify your own output map to be used for each message
+    # The key defines the target property
+    # The value defines the Python code which should be executed to get the value for the property
+    output_map:
+      id: "message.id"
+      date: "message.date"
+      sender: "sender"
+      chat: "get_display_name(await message.get_chat())"
+      message: "message.text"
