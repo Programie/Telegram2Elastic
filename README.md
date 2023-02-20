@@ -24,7 +24,7 @@ It is supported to write to multiple outputs. You may pick any combination of th
 * `file`: Write a line in JSON format for each message into a file
 * `tcp`: Send messages as JSON strings to any TCP socket
 
-It is also possible to configure the same output type multiple types but using different endpoints.
+It is also possible to configure the same output type multiple times but using different endpoints.
 
 ## Initial setup
 
