@@ -19,6 +19,40 @@ from telethon.utils import get_display_name
 LOG_LEVEL_INFO = 35
 
 
+class DottedPathDict(dict):
+    def get(self, path, default=None):
+        path = path.split(".", 1)
+
+        key = path.pop(0)
+
+        if key not in self:
+            return default
+
+        if not path:
+            return super().get(key)
+
+        nested_dict = self[key]
+
+        if not isinstance(nested_dict, DottedPathDict):
+            return default
+
+        return nested_dict.get(path[0], default)
+
+    def set(self, path, value):
+        path = path.split(".", 1)
+
+        key = path.pop(0)
+
+        if not path:
+            self[key] = value
+            return
+
+        new_dict = DottedPathDict()
+        self[key] = new_dict
+
+        new_dict.set(path[0], value)
+
+
 def json_default(value):
     if isinstance(value, bytes):
         return base64.b64encode(value).decode("ascii")
@@ -42,10 +76,10 @@ async def async_exec(code, variables):
 
 
 async def eval_map(input_map: dict, variables: dict):
-    output = {}
+    output = DottedPathDict()
 
     for key, expression in input_map.items():
-        output[key] = await async_exec(expression, variables)
+        output.set(key, await async_exec(expression, variables))
 
     return output
 
