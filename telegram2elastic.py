@@ -6,6 +6,7 @@ import base64
 import importlib
 import logging
 import os
+from abc import ABC, abstractmethod
 from enum import Enum
 
 import yaml
@@ -84,38 +85,48 @@ async def eval_map(input_map: dict, variables: dict):
     return output
 
 
-async def get_message_dict(message, output_map_config: dict = None):
-    sender_user = await message.get_sender()
+class OutputWriter(ABC):
+    def __init__(self, config: dict):
+        self.config: dict = config
 
-    if sender_user is None:
-        sender = None
-    elif isinstance(sender_user, Channel):
-        sender = {
-            "username": sender_user.username,
-            "firstName": sender_user.title,
-            "lastName": None
-        }
-    else:
-        sender = {
-            "username": sender_user.username,
-            "firstName": sender_user.first_name,
-            "lastName": sender_user.last_name
-        }
+    @abstractmethod
+    async def write_message(self, message):
+        pass
 
-    if output_map_config is None:
-        output_map_config = {
-            "id": "message.id",
-            "date": "message.date",
-            "sender": "sender",
-            "chat": "get_display_name(await message.get_chat())",
-            "message": "message.text"
-        }
+    async def get_message_dict(self, message):
+        sender_user = await message.get_sender()
 
-    return await eval_map(output_map_config, {
-        "message": message,
-        "sender": sender,
-        "get_display_name": get_display_name
-    })
+        if sender_user is None:
+            sender = None
+        elif isinstance(sender_user, Channel):
+            sender = {
+                "username": sender_user.username,
+                "firstName": sender_user.title,
+                "lastName": None
+            }
+        else:
+            sender = {
+                "username": sender_user.username,
+                "firstName": sender_user.first_name,
+                "lastName": sender_user.last_name
+            }
+
+        output_map_config = self.config.get("output_map")
+
+        if output_map_config is None:
+            output_map_config = {
+                "id": "message.id",
+                "date": "message.date",
+                "sender": "sender",
+                "chat": "get_display_name(await message.get_chat())",
+                "message": "message.text"
+            }
+
+        return await eval_map(output_map_config, {
+            "message": message,
+            "sender": sender,
+            "get_display_name": get_display_name
+        })
 
 
 class ChatType(Enum):

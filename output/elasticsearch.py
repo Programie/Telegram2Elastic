@@ -1,12 +1,13 @@
 from elasticsearch import Elasticsearch
 
-from telegram2elastic import get_message_dict
+from telegram2elastic import OutputWriter
 
 
-class Writer:
+class Writer(OutputWriter):
     def __init__(self, config: dict):
+        super().__init__(config)
+
         self.index_format = config.get("index_format", "telegram-%Y.%m.%d")
-        self.output_map = config.get("output_map")
 
         username = config.get("username")
         password = config.get("password")
@@ -19,7 +20,7 @@ class Writer:
         self.client = Elasticsearch(hosts=config.get("host", "localhost"), basic_auth=http_auth)
 
     async def write_message(self, message):
-        doc_data = await get_message_dict(message, self.output_map)
+        doc_data = await self.get_message_dict(message)
 
         doc_data["timestamp"] = message.date
 
