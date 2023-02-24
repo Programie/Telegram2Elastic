@@ -39,6 +39,30 @@ outputs:
       chat: "get_display_name(await message.get_chat())"
       message: "message.text"
 
+  # Append messages to a list in Redis
+  - type: redis
+    host: some-host
+    port: 6379
+    db: 0
+
+    # Optionally specify username and password
+    username: <Redis user>
+    password: <Redis password>
+
+    # Redis key into which the list should be stored
+    # Each message is encoded as JSON and appended to that list using the `RPUSH` Redis command
+    key: some_name
+
+    # Specify your own output map to be used for each message
+    # The key defines the target property
+    # The value defines the Python code which should be executed to get the value for the property
+    output_map:
+      id: "message.id"
+      date: "message.date"
+      sender: "sender"
+      chat: "get_display_name(await message.get_chat())"
+      message: "message.text"
+
     # Send messages to any host using TCP (e.g. for using TCP input of Logstash)
   - type: tcp
     host: some-host

@@ -8,6 +8,7 @@ With the data stored in Elasticsearch, you can use applications like Kibana or G
 
 * Python >= 3.7
 * Elasticsearch (in case you want to use the Elasticsearch output)
+* Redis (in case you want to use the Redis output)
 * Telegram API ID and API Hash (create one at [my.telegram.org](https://my.telegram.org))
 
 ## Installation
@@ -22,6 +23,7 @@ It is supported to write to multiple outputs. You may pick any combination of th
 
 * `elasticsearch`: Write to an Elasticsearch instance
 * `file`: Write a line in JSON format for each message into a file
+* `redis`: Append messages encoded as JSON to a list in Redis
 * `tcp`: Send messages as JSON strings to any TCP socket
 
 It is also possible to configure the same output type multiple times but using different endpoints.
