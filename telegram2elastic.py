@@ -345,7 +345,7 @@ def main():
 
     import_history_command = sub_command_parser.add_parser("import-history")
     import_history_command.add_argument("start_date", nargs="?", help="the start date at which to start importing (in format YYYY-MM-DD)")
-    import_history_command.add_argument("--chats", nargs="*", help="only import the give chats (use list-chats to get IDs)")
+    import_history_command.add_argument("--chats", nargs="*", help="only import the given chats (use list-chats to get IDs)")
 
     list_chats_command = sub_command_parser.add_parser("list-chats")
     list_chats_command.add_argument("--types", nargs="*", choices=["contact", "user", "group", "channel"], help="list the given chat types instead of those from the config file")

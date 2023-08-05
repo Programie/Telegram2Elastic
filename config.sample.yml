@@ -20,7 +20,7 @@ telegram:
 
 media:
   # Path where to put media files
-  download_path: /path/were/to/put/media-files
+  download_path: /path/where/to/put/media-files
 
   # Pattern of the saved filename
   #
