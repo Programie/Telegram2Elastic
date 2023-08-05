@@ -7,7 +7,9 @@ import importlib
 import logging
 import os
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 
 import yaml
 
@@ -85,15 +87,21 @@ async def eval_map(input_map: dict, variables: dict):
     return output
 
 
+@dataclass
+class DownloadedMedia:
+    filepath: Path
+    filename: str
+
+
 class OutputWriter(ABC):
     def __init__(self, config: dict):
         self.config: dict = config
 
     @abstractmethod
-    async def write_message(self, message):
+    async def write_message(self, message, downloaded_media: DownloadedMedia):
         pass
 
-    async def get_message_dict(self, message):
+    async def get_message_dict(self, message, downloaded_media: DownloadedMedia):
         sender_user = await message.get_sender()
 
         if sender_user is None:
@@ -119,13 +127,15 @@ class OutputWriter(ABC):
                 "date": "message.date",
                 "sender": "sender",
                 "chat": "get_display_name(await message.get_chat())",
-                "message": "message.text"
+                "message": "message.text",
+                "media": "media.filename if media else None"
             }
 
         return await eval_map(output_map_config, {
             "message": message,
             "sender": sender,
-            "get_display_name": get_display_name
+            "get_display_name": get_display_name,
+            "media": downloaded_media
         })
 
 
@@ -163,9 +173,10 @@ class ChatType(Enum):
 
 
 class OutputHandler:
-    def __init__(self):
+    def __init__(self, media_config: dict):
         self.outputs = []
         self.imports = {}
+        self.media_config = media_config
 
     def add(self, config: dict):
         output_type = config.get("type")
@@ -190,8 +201,50 @@ class OutputHandler:
             logging.debug("Skipping message {} from chat '{}' as chat type {} is not enabled".format(message.id, chat_display_name, chat_type.value if chat_type else None))
             return
 
+        if message.media and self.media_config.get("download_path"):
+            downloaded_media = await self.download_media(message)
+        else:
+            downloaded_media = None
+
         for output in self.outputs:
-            await output.write_message(message)
+            await output.write_message(message, downloaded_media)
+
+    async def download_media(self, message):
+        download_path = Path(self.media_config.get("download_path")).expanduser()
+        download_path.mkdir(parents=True, exist_ok=True)
+
+        if message.file.name is None:
+            original_filename = f"msg{message.chat_id}-{message.id}"
+        else:
+            original_filename = Path(message.file.name).stem
+
+        filename_pattern_map = {
+            "date": {
+                "year": message.date.year,
+                "month": str(message.date.month).rjust(2, "0"),
+                "day": str(message.date.day).rjust(2, "0"),
+                "hour": str(message.date.hour).rjust(2, "0"),
+                "minute": str(message.date.minute).rjust(2, "0"),
+                "second": str(message.date.second).rjust(2, "0")
+            },
+            "file": {
+                "name": original_filename,
+                "ext": message.file.ext.strip(".")
+            },
+            "message": {
+                "id": message.id,
+                "chat_id": message.chat_id
+            }
+        }
+
+        file_pattern = self.media_config.get("file_pattern", "{date[year]}-{date[month]}-{date[day]}_{date[hour]}-{date[minute]}-{date[second]}_{message[id]}_{file[name]}.{file[ext]}")
+
+        filename = file_pattern.format_map(filename_pattern_map)
+        filepath = download_path.joinpath(filename)
+
+        await message.download_media(file=filepath)
+
+        return DownloadedMedia(filepath=filepath, filename=filename)
 
 
 class TelegramReader:
@@ -309,7 +362,7 @@ def main():
         logging.error("Unable to parse config file '{}'".format(arguments.config))
         exit(1)
 
-    output_handler = OutputHandler()
+    output_handler = OutputHandler(media_config=config.get("media", {}))
 
     for output in config.get("outputs", []):
         output_handler.add(output)

@@ -19,8 +19,8 @@ class Writer(OutputWriter):
 
         self.client = Elasticsearch(hosts=config.get("host", "localhost"), basic_auth=http_auth)
 
-    async def write_message(self, message):
-        doc_data = await self.get_message_dict(message)
+    async def write_message(self, message, downloaded_media):
+        doc_data = await self.get_message_dict(message, downloaded_media)
 
         doc_data["timestamp"] = message.date
 

@@ -18,6 +18,26 @@ telegram:
     - <id 2>
     - ...
 
+media:
+  # Path where to put media files
+  download_path: /path/were/to/put/media-files
+
+  # Pattern of the saved filename
+  #
+  # Available placeholders:
+  # {date.year}: Year from the message date
+  # {date.month}: Month from the message date
+  # {date.day}: Day from the message date
+  # {date.hour}: Hour from the message date
+  # {date.minute}: Minute from the message date
+  # {date.second}: Second from the message date
+  # {file.name}: Original name of the file (without file extension)
+  # {file.ext}: Extension of the file (without leading dot, i.e. "jpg")
+  # {message.id}: ID of the message
+  #
+  # You might also use directory separators to create subdirectories
+  file_pattern: "{date[year]}-{date[month]}-{date[day]}_{date[hour]}-{date[minute]}-{date[second]}_{message[id]}_{file[name]}.{file[ext]}"
+
 outputs:
   # Send messages to Elasticsearch
   - type: elasticsearch
@@ -38,6 +58,7 @@ outputs:
       sender: "sender"
       chat: "get_display_name(await message.get_chat())"
       message: "message.text"
+      media: "media.filename if media else None"
 
   # Append messages to a list in Redis
   - type: redis
@@ -62,6 +83,7 @@ outputs:
       sender: "sender"
       chat: "get_display_name(await message.get_chat())"
       message: "message.text"
+      media: "media.filename if media else None"
 
     # Send messages to any host using TCP (e.g. for using TCP input of Logstash)
   - type: tcp
@@ -77,6 +99,7 @@ outputs:
       sender: "sender"
       chat: "get_display_name(await message.get_chat())"
       message: "message.text"
+      media: "media.filename if media else None"
 
     # Write messages to a file (in JSON format - one JSON object per line)
   - type: file
@@ -91,3 +114,4 @@ outputs:
       sender: "sender"
       chat: "get_display_name(await message.get_chat())"
       message: "message.text"
+      media: "media.filename if media else None"
