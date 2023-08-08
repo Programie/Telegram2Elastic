@@ -38,6 +38,28 @@ media:
   # You might also use directory separators to create subdirectories
   file_pattern: "{date[year]}-{date[month]}-{date[day]}_{date[hour]}-{date[minute]}-{date[second]}_{message[id]}_{file[name]}.{file[ext]}"
 
+  # Limit the maximum size for media downloads
+  # Omit or keep empty to disable limit
+  max_size: 10M
+
+  # Optionally specify configuration per media type
+  types:
+    # Configuration for media files of type "photo"
+    photo:
+      # Choose whether to download photos
+      enabled: true
+
+      # Set max size for photos
+      max_size: 10M
+
+    # Configuration for media files of type "file" (i.e. everything else)
+    file:
+      # Choose whether to download files
+      enabled: true
+
+      # Set max size for files
+      max_size: 10M
+
 outputs:
   # Send messages to Elasticsearch
   - type: elasticsearch

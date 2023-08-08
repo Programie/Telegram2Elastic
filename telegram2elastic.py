@@ -15,11 +15,41 @@ import yaml
 
 from datetime import datetime
 from telethon import TelegramClient, events
+from telethon.tl import types
 from telethon.tl.patched import Message
 from telethon.tl.types import User, Chat, Channel
 from telethon.utils import get_display_name
 
 LOG_LEVEL_INFO = 35
+
+
+class FileSize:
+    units = ["K", "M", "G", "T", "P"]
+
+    @staticmethod
+    def human_readable_to_bytes(size_string: str):
+        # Convert to uppercase and strip "B" suffix (i.e. "mb" or "MB" will be "M")
+        size_string = size_string.upper().rstrip("B")
+
+        # Size is already in bytes
+        if size_string.isdigit():
+            return int(size_string)
+
+        size_bytes = size_string[:-1]
+        unit_index = FileSize.units.index(size_string[-1]) + 1
+
+        return int(float(size_bytes) * pow(1024, unit_index))
+
+    @staticmethod
+    def bytes_to_human_readable(size_bytes: int):
+        unit = ""
+
+        for unit in [""] + FileSize.units:
+            if abs(size_bytes) < 1024:
+                return f"{size_bytes:3.1f}{unit}B"
+            size_bytes /= 1024
+
+        return f"{size_bytes:3.1f}{unit}B"
 
 
 class DottedPathDict(dict):
@@ -218,6 +248,8 @@ class OutputHandler:
         else:
             original_filename = Path(message.file.name).stem
 
+        full_original_filename = f"{original_filename}{message.file.ext}"
+
         filename_pattern_map = {
             "date": {
                 "year": message.date.year,
@@ -242,6 +274,27 @@ class OutputHandler:
         filename = file_pattern.format_map(filename_pattern_map)
         filepath = download_path.joinpath(filename)
 
+        if isinstance(message.media, types.MessageMediaPhoto):
+            media_type = "photo"
+        else:
+            media_type = "file"
+
+        media_type_config = self.media_config.get("types", {}).get(media_type, {})
+
+        if not media_type_config.get("enabled", True):
+            logging.debug(f"Skipping media download for '{full_original_filename}' with type {media_type} as it is disabled")
+            return
+
+        file_size_string = FileSize.bytes_to_human_readable(message.file.size)
+
+        max_size = media_type_config.get("max_size", self.media_config.get("max_size", ""))
+        if max_size != "":
+            max_size_bytes = FileSize.human_readable_to_bytes(max_size)
+            if message.file.size > max_size_bytes:
+                logging.debug(f"Skipping media download for '{full_original_filename}' as it exceeds the configured max size ({file_size_string} > {max_size})")
+                return
+
+        logging.debug(f"Downloading media file '{full_original_filename}' with type '{media_type}' to {filepath} ({file_size_string})")
         await message.download_media(file=filepath)
 
         return DownloadedMedia(filepath=filepath, filename=filename)
