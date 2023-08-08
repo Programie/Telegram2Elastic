@@ -201,7 +201,7 @@ class OutputHandler:
             logging.debug("Skipping message {} from chat '{}' as chat type {} is not enabled".format(message.id, chat_display_name, chat_type.value if chat_type else None))
             return
 
-        if message.media and self.media_config.get("download_path"):
+        if message.file and self.media_config.get("download_path"):
             downloaded_media = await self.download_media(message)
         else:
             downloaded_media = None
