@@ -338,6 +338,7 @@ def main():
     argument_parser = argparse.ArgumentParser(description="A simple Telegram client writing chat messages to multiple outputs in realtime")
 
     argument_parser.add_argument("--config", "-c", help="path to your config file", default=os.getenv("CONFIG_FILE", "config.yml"))
+    argument_parser.add_argument("--debug", "-d", help="print debug output", action="store_true")
 
     sub_command_parser = argument_parser.add_subparsers(dest="command", required=True)
 
@@ -352,7 +353,7 @@ def main():
 
     arguments = argument_parser.parse_args()
 
-    logging.basicConfig(format="[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s", level=logging.WARNING)
+    logging.basicConfig(format="[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s", level=logging.DEBUG if arguments.debug else logging.WARNING)
     logging.addLevelName(LOG_LEVEL_INFO, "INFO")
 
     with open(arguments.config, "r") as config_file:
