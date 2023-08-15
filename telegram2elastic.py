@@ -123,6 +123,86 @@ class DownloadedMedia:
     filename: str
 
 
+class MediaConfigurationRule:
+    def __init__(self, global_config: dict, config_data: dict):
+        self.global_config = global_config
+        self.config_data = config_data
+
+    def matches_message(self, message, chat):
+        if isinstance(message.media, types.MessageMediaPhoto):
+            message_media_type = "photo"
+        else:
+            message_media_type = "file"
+
+        if not self.matches_media_type(message_media_type):
+            return False
+
+        message_chat_type = ChatType.get_from_chat(chat)
+        if message_chat_type is None or not self.matches_chat_type(message_chat_type.value):
+            return False
+
+        message_chat_id = message.chat_id
+        if message_chat_id is None or not self.matches_chat_id(message_chat_id):
+            return False
+
+        return True
+
+    def matches_media_type(self, media_type: str):
+        value = self.config_data.get("media_type")
+        return value is None or value == media_type
+
+    def matches_chat_type(self, chat_type: str):
+        value = self.config_data.get("chat_type")
+        return value is None or value == chat_type
+
+    def matches_chat_id(self, chat_id: int):
+        chat_ids = self.config_data.get("chats")
+        if not chat_ids:
+            return True
+
+        return chat_id in chat_ids
+
+    def get_download_path(self) -> str | None:
+        return self.get_with_fallback("download_path")
+
+    def get_filepattern(self) -> str:
+        return self.get_with_fallback("file_pattern", "{date[year]}-{date[month]}-{date[day]}_{date[hour]}-{date[minute]}-{date[second]}_{message[id]}_{file[name]}.{file[ext]}")
+
+    def get_max_size(self) -> str:
+        return self.get_with_fallback("max_size", "")
+
+    def get_with_fallback(self, option_name: str, default_value=None):
+        value = self.config_data.get(option_name)
+        if value is not None:
+            return value
+
+        # Fallback to global config
+        value = self.global_config.get(option_name)
+        if value is not None:
+            return value
+
+        return default_value
+
+
+class MediaConfiguration:
+    def __init__(self, config: dict):
+        self.config = config
+
+        self.rules = []
+
+        for rule in config.get("rules", []):
+            self.rules.append(MediaConfigurationRule(self.config, rule))
+
+        # Add default match-all rule if there are no rules configured
+        if not self.rules:
+            self.rules.append(MediaConfigurationRule(self.config, {}))
+
+    def get_rule(self, message, chat):
+        for rule in self.rules:
+            if rule.matches_message(message, chat):
+                return rule
+
+
 class OutputWriter(ABC):
     def __init__(self, config: dict):
         self.config: dict = config
@@ -206,7 +286,7 @@ class OutputHandler:
     def __init__(self, media_config: dict):
         self.outputs = []
         self.imports = {}
-        self.media_config = media_config
+        self.media_config = MediaConfiguration(media_config)
 
     def add(self, config: dict):
         output_type = config.get("type")
@@ -231,7 +311,7 @@ class OutputHandler:
             logging.debug("Skipping message {} from chat '{}' as chat type {} is not enabled".format(message.id, chat_display_name, chat_type.value if chat_type else None))
             return
 
-        if message.file and self.media_config.get("download_path"):
+        if message.file:
             downloaded_media = await self.download_media(message)
         else:
             downloaded_media = None
@@ -240,15 +320,24 @@ class OutputHandler:
             await output.write_message(message, downloaded_media)
 
     async def download_media(self, message):
-        download_path = Path(self.media_config.get("download_path")).expanduser()
-        download_path.mkdir(parents=True, exist_ok=True)
-
         if message.file.name is None:
             original_filename = f"msg{message.chat_id}-{message.id}"
         else:
             original_filename = Path(message.file.name).stem
 
         full_original_filename = f"{original_filename}{message.file.ext}"
+
+        config_rule = self.media_config.get_rule(message, await message.get_chat())
+        if config_rule is None:
+            logging.debug(f"Skipping media download for '{full_original_filename}' as no config rule matches")
+            return
+
+        download_path = config_rule.get_download_path()
+        if download_path is None:
+            logging.debug(f"Skipping media download for '{full_original_filename}' as no download path has been configured")
+            return
+
+        download_path = Path(download_path).expanduser()
 
         filename_pattern_map = {
             "date": {
@@ -269,32 +358,20 @@ class OutputHandler:
             }
         }
 
-        file_pattern = self.media_config.get("file_pattern", "{date[year]}-{date[month]}-{date[day]}_{date[hour]}-{date[minute]}-{date[second]}_{message[id]}_{file[name]}.{file[ext]}")
-
-        filename = file_pattern.format_map(filename_pattern_map)
+        filename = config_rule.get_filepattern().format_map(filename_pattern_map)
         filepath = download_path.joinpath(filename)
-
-        if isinstance(message.media, types.MessageMediaPhoto):
-            media_type = "photo"
-        else:
-            media_type = "file"
-
-        media_type_config = self.media_config.get("types", {}).get(media_type, {})
-
-        if not media_type_config.get("enabled", True):
-            logging.debug(f"Skipping media download for '{full_original_filename}' with type {media_type} as it is disabled")
-            return
 
         file_size_string = FileSize.bytes_to_human_readable(message.file.size)
 
-        max_size = media_type_config.get("max_size", self.media_config.get("max_size", ""))
+        max_size = config_rule.get_max_size()
         if max_size != "":
             max_size_bytes = FileSize.human_readable_to_bytes(max_size)
             if message.file.size > max_size_bytes:
                 logging.debug(f"Skipping media download for '{full_original_filename}' as it exceeds the configured max size ({file_size_string} > {max_size})")
                 return
 
-        logging.debug(f"Downloading media file '{full_original_filename}' with type '{media_type}' to {filepath} ({file_size_string})")
+        logging.debug(f"Downloading media file '{full_original_filename}' to {filepath} ({file_size_string})")
+        filepath.parent.mkdir(parents=True, exist_ok=True)
         await message.download_media(file=filepath)
 
         return DownloadedMedia(filepath=filepath, filename=filename)

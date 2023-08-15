@@ -42,23 +42,28 @@ media:
   # Omit or keep empty to disable limit
   max_size: 10M
 
-  # Optionally specify configuration per media type
-  types:
-    # Configuration for media files of type "photo"
-    photo:
-      # Choose whether to download photos
-      enabled: true
+  # Configure rules to define whether to download media for specific media types, chat types and/or contacts
+  # If there is at least one rule, downloading will be disabled by default until a matching configuration is found
+  # The first matching rule will be used
+  # You might also specify "download_path", "max_size" and "file_pattern" in a rule to change them for a specific rule.
+  rules:
 
-      # Set max size for photos
+    # This rule will enable downloads of photos up to 10 MB for specific contacts
+    - media_type: photo
+      chat_type: contact
+      chats:
+        - <id 1>
+        - <id 2>
+        - ...
       max_size: 10M
 
-    # Configuration for media files of type "file" (i.e. everything else)
-    file:
-      # Choose whether to download files
-      enabled: true
+    # This rule will allow any media download regardless of the media type but limit it to 50 MB per media download and put the files in "/downloads/channels"
+    - chat_type: channel
+      max_size: 50M
+      download_path: /downloads/channels
 
-      # Set max size for files
-      max_size: 10M
+    # This rule will accept any media download with a maximum size of 5 MB
+    - max_size: 5M
 
 outputs:
   # Send messages to Elasticsearch
