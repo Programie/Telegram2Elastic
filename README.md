@@ -46,6 +46,19 @@ chat: "get_display_name(await message.get_chat())"
 message: "message.text"
 ```
 
+## Media downloads
+
+It is not only possible to store the text messages in something like Elasticsearch. There is also the possibility to download media files attached to those messages.
+
+To enable that, you simply add the following configuration to your `config.yml`:
+
+```yaml
+media:
+  download_path: /path/where/to/put/media-files
+```
+
+There are also some more options to restrict those downloads to specific file types, chats or limit them by size. For more options, have a look into the [config.sample.yml](config.sample.yml).
+
 ## Initial setup
 
 When started for the first time, the application will ask you to connect with your Telegram account.
