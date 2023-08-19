@@ -151,6 +151,9 @@ class MediaConfigurationRule:
         if message_chat_id is None or not self.matches_chat_id(message_chat_id):
             return False
 
+        if not self.check_size_limit(message.file.size):
+            return False
+
         return True
 
     def matches_media_type(self, media_type: str):
@@ -170,6 +173,18 @@ class MediaConfigurationRule:
         self.logger.debug(f"Checking chat ID {chat_id} in {chat_ids}")
 
         return chat_id in chat_ids
+
+    def check_size_limit(self, file_size_bytes: int):
+        max_size = self.get_max_size()
+        if max_size == "":
+            return True
+
+        max_size_bytes = FileSize.human_readable_to_bytes(max_size)
+        file_size_string = FileSize.bytes_to_human_readable(file_size_bytes)
+
+        self.logger.debug(f"Checking file size {file_size_string} <= {max_size}")
+
+        return file_size_bytes <= max_size_bytes
 
     def get_download_path(self) -> str | None:
         return self.get_with_fallback("download_path")
@@ -390,15 +405,7 @@ class OutputHandler:
 
         filename = config_rule.get_filepattern().format_map(filename_pattern_map)
         filepath = download_path.joinpath(filename)
-
         file_size_string = FileSize.bytes_to_human_readable(message.file.size)
-
-        max_size = config_rule.get_max_size()
-        if max_size != "":
-            max_size_bytes = FileSize.human_readable_to_bytes(max_size)
-            if message.file.size > max_size_bytes:
-                logging.debug(f"Skipping media download for '{full_original_filename}' as it exceeds the configured max size ({file_size_string} > {max_size})")
-                return
 
         logging.debug(f"Downloading media file '{full_original_filename}' to {filepath} ({file_size_string})")
         filepath.parent.mkdir(parents=True, exist_ok=True)
