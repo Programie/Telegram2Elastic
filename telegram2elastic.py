@@ -6,6 +6,7 @@ import base64
 import importlib
 import logging
 import os
+import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
@@ -124,9 +125,11 @@ class DownloadedMedia:
 
 
 class MediaConfigurationRule:
-    def __init__(self, global_config: dict, config_data: dict):
+    def __init__(self, global_config: dict, config_data: dict, rule_index: int):
         self.global_config = global_config
         self.config_data = config_data
+
+        self.logger = logging.getLogger(f"media_download_config_rule[#{rule_index}]")
 
     def matches_message(self, message, chat):
         if isinstance(message.media, types.MessageMediaPhoto):
@@ -135,6 +138,9 @@ class MediaConfigurationRule:
             message_media_type = "file"
 
         if not self.matches_media_type(message_media_type):
+            return False
+
+        if not self.matches_mime_type(message.file.mime_type):
             return False
 
         message_chat_type = ChatType.get_from_chat(chat)
@@ -148,17 +154,20 @@ class MediaConfigurationRule:
         return True
 
     def matches_media_type(self, media_type: str):
-        value = self.config_data.get("media_type")
-        return value is None or value == media_type
+        return self.matches_config_value("media_type", media_type)
+
+    def matches_mime_type(self, mime_type: str):
+        return self.matches_config_value("mime_type", mime_type)
 
     def matches_chat_type(self, chat_type: str):
-        value = self.config_data.get("chat_type")
-        return value is None or value == chat_type
+        return self.matches_config_value("chat_type", chat_type)
 
     def matches_chat_id(self, chat_id: int):
         chat_ids = self.config_data.get("chats")
         if not chat_ids:
             return True
+
+        self.logger.debug(f"Checking chat ID {chat_id} in {chat_ids}")
 
         return chat_id in chat_ids
 
@@ -171,15 +180,36 @@ class MediaConfigurationRule:
     def get_max_size(self) -> str:
         return self.get_with_fallback("max_size", "")
 
+    def matches_config_value(self, config_name: str, value):
+        match_exact_value = self.config_data.get(config_name)
+        match_regex_value = self.config_data.get(f"{config_name}_re")
+
+        if match_exact_value is None and match_regex_value is None:
+            return True
+
+        self.logger.debug(f"Checking config '{config_name}' with value '{value}': exact = {match_exact_value}, regex = {match_regex_value}")
+
+        if match_exact_value is not None and match_exact_value == value:
+            return True
+
+        if match_regex_value is not None and re.match(match_regex_value, value):
+            return True
+
+        return False
+
     def get_with_fallback(self, option_name: str, default_value=None):
         value = self.config_data.get(option_name)
         if value is not None:
+            self.logger.debug(f"Config for '{option_name}' resolved: {value}")
             return value
 
         # Fallback to global config
         value = self.global_config.get(option_name)
         if value is not None:
+            self.logger.debug(f"Config for '{option_name}' resolved to global config: {value}")
             return value
+
+        self.logger.debug(f"Config for '{option_name}' resolved to default: {default_value}")
 
         return default_value
 
@@ -190,12 +220,12 @@ class MediaConfiguration:
 
         self.rules = []
 
-        for rule in config.get("rules", []):
-            self.rules.append(MediaConfigurationRule(self.config, rule))
+        for index, rule in enumerate(config.get("rules", [])):
+            self.rules.append(MediaConfigurationRule(self.config, rule, index))
 
         # Add default match-all rule if there are no rules configured
         if not self.rules:
-            self.rules.append(MediaConfigurationRule(self.config, {}))
+            self.rules.append(MediaConfigurationRule(self.config, {}, 0))
 
     def get_rule(self, message, chat):
         for rule in self.rules:
@@ -329,7 +359,7 @@ class OutputHandler:
 
         config_rule = self.media_config.get_rule(message, await message.get_chat())
         if config_rule is None:
-            logging.debug(f"Skipping media download for '{full_original_filename}' as no config rule matches")
+            logging.debug(f"Skipping media download for '{full_original_filename}' as no config rule matches (mime_type: {message.file.mime_type})")
             return
 
         download_path = config_rule.get_download_path()

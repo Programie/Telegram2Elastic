@@ -42,10 +42,11 @@ media:
   # Omit or keep empty to disable limit
   max_size: 10M
 
-  # Configure rules to define whether to download media for specific media types, chat types and/or contacts
+  # Configure rules to define whether to download media for specific media types, mime types, chat types and/or contacts
   # If there is at least one rule, downloading will be disabled by default until a matching configuration is found
   # The first matching rule will be used
   # You might also specify "download_path", "max_size" and "file_pattern" in a rule to change them for a specific rule.
+  # media_type, mime_type and chat_type might be also configured as a regular expression by using media_type_re, mime_type_re and chat_type_re instead
   rules:
 
     # This rule will enable downloads of photos up to 10 MB for specific contacts
@@ -61,6 +62,12 @@ media:
     - chat_type: channel
       max_size: 50M
       download_path: /downloads/channels
+
+    # This rule will allow to download any JPEG image
+    - mime_type: image/jpeg
+
+    # This rule will allow to download any image ("mime_type_re" will match using a regular expression)
+    - mime_type_re: image
 
     # This rule will accept any media download with a maximum size of 5 MB
     - max_size: 5M
