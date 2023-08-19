@@ -245,7 +245,10 @@ class MediaConfiguration:
     def get_rule(self, message, chat):
         for rule in self.rules:
             if rule.matches_message(message, chat):
+                rule.logger.debug("Rule matches")
                 return rule
+            else:
+                rule.logger.debug("Rule does not match")
 
 
 class OutputWriter(ABC):
