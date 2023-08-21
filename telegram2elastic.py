@@ -75,18 +75,14 @@ class DottedPathDict(dict):
         return nested_dict.get(path[0], default)
 
     def set(self, path, value):
-        path = path.split(".", 1)
+        node = self
+        path_parts = path.split(".")
 
-        key = path.pop(0)
+        for level in path_parts[:-1]:
+            if level:
+                node = node.setdefault(level, {})
 
-        if not path:
-            self[key] = value
-            return
-
-        new_dict = DottedPathDict()
-        self[key] = new_dict
-
-        new_dict.set(path[0], value)
+        node[path_parts[-1]] = value
 
 
 def json_default(value):
