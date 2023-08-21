@@ -17,8 +17,10 @@ import yaml
 from datetime import datetime
 from telethon import TelegramClient, events
 from telethon.tl import types
+from telethon.tl.functions.messages import TranslateTextRequest
 from telethon.tl.patched import Message
 from telethon.tl.types import User, Chat, Channel
+from telethon.tl.types.messages import TranslateResultText
 from telethon.utils import get_display_name
 
 LOG_LEVEL_INFO = 35
@@ -256,10 +258,10 @@ class OutputWriter(ABC):
         self.config: dict = config
 
     @abstractmethod
-    async def write_message(self, message, downloaded_media: DownloadedMedia):
+    async def write_message(self, message, translated_text: str | None, downloaded_media: DownloadedMedia):
         pass
 
-    async def get_message_dict(self, message, downloaded_media: DownloadedMedia):
+    async def get_message_dict(self, message, translated_text: str | None, downloaded_media: DownloadedMedia):
         sender_user = await message.get_sender()
 
         if sender_user is None:
@@ -293,6 +295,7 @@ class OutputWriter(ABC):
             "message": message,
             "sender": sender,
             "get_display_name": get_display_name,
+            "translated_text": translated_text,
             "media": downloaded_media
         })
 
@@ -331,10 +334,11 @@ class ChatType(Enum):
 
 
 class OutputHandler:
-    def __init__(self, media_config: dict):
+    def __init__(self, media_config: dict, translate_to_lang: str = None):
         self.outputs = []
         self.imports = {}
         self.media_config = MediaConfiguration(media_config)
+        self.translate_to_lang = translate_to_lang
 
     def add(self, config: dict):
         output_type = config.get("type")
@@ -364,8 +368,18 @@ class OutputHandler:
         else:
             downloaded_media = None
 
+        if self.translate_to_lang and message.text:
+            try:
+                translate_text_result: TranslateResultText = await message.client(TranslateTextRequest(to_lang=self.translate_to_lang, peer=message.input_sender, msg_id=message.id))
+                translated_text = translate_text_result.text
+            except BaseException as exception:
+                logging.error(f"Unable to translate text '{message.text}' using language '{self.translate_to_lang}': {exception}")
+                translated_text = None
+        else:
+            translated_text = None
+
         for output in self.outputs:
-            await output.write_message(message, downloaded_media)
+            await output.write_message(message=message, translated_text=translated_text, downloaded_media=downloaded_media)
 
     async def download_media(self, message):
         if message.file.name is None:
@@ -533,7 +547,7 @@ def main():
         logging.error("Unable to parse config file '{}'".format(arguments.config))
         exit(1)
 
-    output_handler = OutputHandler(media_config=config.get("media", {}))
+    output_handler = OutputHandler(media_config=config.get("media", {}), translate_to_lang=config.get("translate_to_lang"))
 
     for output in config.get("outputs", []):
         output_handler.add(output)

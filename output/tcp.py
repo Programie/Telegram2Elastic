@@ -22,8 +22,8 @@ class Writer(OutputWriter):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((self.host, self.port))
 
-    async def write_message(self, message, downloaded_media):
-        message_dict = await self.get_message_dict(message, downloaded_media)
+    async def write_message(self, message, translated_text, downloaded_media):
+        message_dict = await self.get_message_dict(message, translated_text, downloaded_media)
 
         data = json.dumps(message_dict, default=json_default) + "\n"
 

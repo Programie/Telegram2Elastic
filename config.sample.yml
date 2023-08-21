@@ -18,6 +18,11 @@ telegram:
     - <id 2>
     - ...
 
+# Configure whether messages should be translated into the specified language
+# Use the two-letter ISO 639-1 language code (examples: "de", "en", "es", "it")
+# Omit or keep empty to disable translations
+translate_to_lang: "en"
+
 media:
   # Path where to put media files
   download_path: /path/where/to/put/media-files
