@@ -57,30 +57,29 @@ class FileSize:
 
 class DottedPathDict(dict):
     def get(self, path, default=None):
-        path = path.split(".", 1)
+        node = self
+        path_parts = path.split(".")
 
-        key = path.pop(0)
+        for level in path_parts:
+            if not level:
+                continue
 
-        if key not in self:
-            return default
+            if level in node:
+                node = node[level]
+            else:
+                return default
 
-        if not path:
-            return super().get(key)
-
-        nested_dict = self[key]
-
-        if not isinstance(nested_dict, DottedPathDict):
-            return default
-
-        return nested_dict.get(path[0], default)
+        return node
 
     def set(self, path, value):
         node = self
         path_parts = path.split(".")
 
         for level in path_parts[:-1]:
-            if level:
-                node = node.setdefault(level, {})
+            if not level:
+                continue
+
+            node = node.setdefault(level, {})
 
         node[path_parts[-1]] = value
 
