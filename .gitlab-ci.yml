@@ -1,6 +1,0 @@
-include:
-  - project: "Programie/Common"
-    file: "docker-images/gitlab-ci.yml"
-
-variables:
-  DOCKER_HUB_REPO: telegram2elastic

@@ -1,0 +1,10 @@
+name: Build Docker image
+
+on: push
+
+jobs:
+  build:
+    uses: programie/Workflows/.github/workflows/build-docker-image.yml@main
+    with:
+      image: programie/telegram2elastic
+    secrets: inherit
