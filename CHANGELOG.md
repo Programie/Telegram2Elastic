@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.1.0] - 2023-10-01
+
+* Implemented downloading media (#3)
+* Implemented translating messages (#4)
+
 ## [3.0] - 2023-03-10
 
 * Allow to define own output map to change JSON structure sent to outputs
