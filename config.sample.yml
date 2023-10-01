@@ -153,4 +153,5 @@ outputs:
       sender: "sender"
       chat: "get_display_name(await message.get_chat())"
       message: "message.text"
+      translated_message: "translated_text"
       media: "media.filename if media else None"
