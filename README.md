@@ -4,6 +4,9 @@ Telegram 2 Elastic is a [Telegram](https://telegram.org) client which writes all
 
 With the data stored in Elasticsearch, you can use applications like Kibana or Grafana to visualize the chats. Or you may use it as a much better search engine compared to the one implemented in the available Telegram clients.
 
+[![DockerHub](https://img.shields.io/badge/download-DockerHub-blue?logo=docker)](https://hub.docker.com/r/programie/telegram2elastic)
+[![GitHub release](https://img.shields.io/github/v/release/Programie/Telegram2Elastic)](https://github.com/Programie/Telegram2Elastic/releases/latest)
+
 ## Requirements
 
 * Python >= 3.7
