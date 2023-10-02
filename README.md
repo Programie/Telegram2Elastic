@@ -9,7 +9,7 @@ With the data stored in Elasticsearch, you can use applications like Kibana or G
 
 ## Requirements
 
-* Python >= 3.7
+* Python >= 3.10
 * Elasticsearch (in case you want to use the Elasticsearch output)
 * Redis (in case you want to use the Redis output)
 * Telegram API ID and API Hash (create one at [my.telegram.org](https://my.telegram.org))
