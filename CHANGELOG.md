@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.1.1] - 2023-10-02
+
+* Fixed Docker build to use Python 3.10
+
 ## [3.1.0] - 2023-10-01
 
 * Implemented downloading media (#3)
