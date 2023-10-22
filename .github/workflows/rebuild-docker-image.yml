@@ -8,6 +8,6 @@ jobs:
   build:
     uses: programie/Workflows/.github/workflows/build-docker-image.yml@main
     with:
-      image: programie/telegram2elastic
+      dockerhub_image: programie/telegram2elastic
       use_latest_release: true
     secrets: inherit
