@@ -267,11 +267,23 @@ class OutputWriter(ABC):
                 "firstName": sender_user.title,
                 "lastName": None
             }
+        elif sender_user is None:
+            sender = {
+                "username": "",
+                "firstName": "Deleted User",
+                "lastName": ""
+            }
+        elif hasattr(sender_user, "username") is None:
+            sender = {
+                "username": "",
+                "firstName": sender_user.title if hasattr(sender_user, "first_name") else "",
+                "lastName": sender_user.last_name if hasattr(sender_user, "last_name") else ""
+            }
         else:
             sender = {
-                "username": sender_user.username,
-                "firstName": sender_user.first_name,
-                "lastName": sender_user.last_name
+                "username": sender_user.username if sender_user and hasattr(sender_user, "username") else "",
+                "firstName": sender_user.first_name if sender_user and hasattr(sender_user, "first_name") else "",
+                "lastName": sender_user.last_name if sender_user and hasattr(sender_user, "last_name") else ""
             }
 
         output_map_config = self.config.get("output_map")
