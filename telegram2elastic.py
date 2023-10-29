@@ -260,24 +260,16 @@ class OutputWriter(ABC):
         sender_user = await message.get_sender()
 
         if sender_user is None:
-            sender = None
-        elif isinstance(sender_user, Channel):
-            sender = {
-                "username": sender_user.username,
-                "firstName": sender_user.title,
-                "lastName": None
-            }
-        elif sender_user is None:
             sender = {
                 "username": "",
                 "firstName": "Deleted User",
                 "lastName": ""
             }
-        elif hasattr(sender_user, "username") is None:
+        elif isinstance(sender_user, Channel):
             sender = {
-                "username": "",
-                "firstName": sender_user.title if hasattr(sender_user, "first_name") else "",
-                "lastName": sender_user.last_name if hasattr(sender_user, "last_name") else ""
+                "username": sender_user.username,
+                "firstName": sender_user.title,
+                "lastName": None
             }
         else:
             sender = {
