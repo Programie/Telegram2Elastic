@@ -260,7 +260,11 @@ class OutputWriter(ABC):
         sender_user = await message.get_sender()
 
         if sender_user is None:
-            sender = None
+            sender = {
+                "username": "",
+                "firstName": "Deleted User",
+                "lastName": ""
+            }
         elif isinstance(sender_user, Channel):
             sender = {
                 "username": sender_user.username,
@@ -269,9 +273,9 @@ class OutputWriter(ABC):
             }
         else:
             sender = {
-                "username": sender_user.username,
-                "firstName": sender_user.first_name,
-                "lastName": sender_user.last_name
+                "username": sender_user.username if sender_user and hasattr(sender_user, "username") else "",
+                "firstName": sender_user.first_name if sender_user and hasattr(sender_user, "first_name") else "",
+                "lastName": sender_user.last_name if sender_user and hasattr(sender_user, "last_name") else ""
             }
 
         output_map_config = self.config.get("output_map")
