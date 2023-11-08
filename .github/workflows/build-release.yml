@@ -14,3 +14,4 @@ jobs:
     with:
       files: telegram2elastic.py output config.sample.yml requirements.txt
       artifact_name: Telegram2Elastic.zip
+    secrets: inherit
