@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.1.2] - 2023-11-08
+
+* Fixed crash if username, first_name or last_name of sender are not defined (thanks to @cololi)
+* Use empty username and lastName and use "Deleted User" as firstName if sender user is not available/deleted (thanks to @cololi)
+
 ## [3.1.1] - 2023-10-02
 
 * Fixed Docker build to use Python 3.10
