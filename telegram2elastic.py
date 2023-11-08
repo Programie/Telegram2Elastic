@@ -273,9 +273,9 @@ class OutputWriter(ABC):
             }
         else:
             sender = {
-                "username": sender_user.username if sender_user and hasattr(sender_user, "username") else "",
-                "firstName": sender_user.first_name if sender_user and hasattr(sender_user, "first_name") else "",
-                "lastName": sender_user.last_name if sender_user and hasattr(sender_user, "last_name") else ""
+                "username": getattr(sender_user, "username", ""),
+                "firstName": getattr(sender_user, "first_name", ""),
+                "lastName": getattr(sender_user, "last_name", "")
             }
 
         output_map_config = self.config.get("output_map")
