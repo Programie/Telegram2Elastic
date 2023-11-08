@@ -267,8 +267,8 @@ class OutputWriter(ABC):
             }
         elif isinstance(sender_user, Channel):
             sender = {
-                "username": sender_user.username,
-                "firstName": sender_user.title,
+                "username": getattr(sender_user, "username", ""),
+                "firstName": getattr(sender_user, "title", ""),
                 "lastName": None
             }
         else:
