@@ -1,0 +1,17 @@
+[project]
+name = "telegram2elastic"
+version = "4.0.0"
+description = "A simple Telegram client writing chat messages to an Elasticsearch instance in realtime"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "elasticsearch>=7,<9",
+    "pyyaml>=5,<7",
+    "redis~=4.5.1",
+    "telethon~=1.40.0,<2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest~=7.4.2",
+]

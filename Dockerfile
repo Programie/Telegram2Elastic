@@ -1,11 +1,16 @@
-FROM python:3.10-buster
+FROM alpine
+
+ARG UV_VERSION=0.11.3
+
+RUN apk add bash curl && \
+    curl -L https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-x86_64-unknown-linux-musl.tar.gz | tar -C /usr/local/bin -zxp --strip-components=1
 
 COPY output/*.py /app/output/
-COPY requirements.txt telegram2elastic.py /app/
+COPY .python-version pyproject.toml uv.lock telegram2elastic.py /app/
 
 WORKDIR /app
 
-RUN pip install -r requirements.txt
+RUN uv sync --no-dev
 
 VOLUME /sessions
 

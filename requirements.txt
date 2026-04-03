@@ -1,4 +1,0 @@
-PyYAML>=5, <7
-elasticsearch>=7, <9
-redis~=4.5.1
-Telethon~=1.40.0, <2

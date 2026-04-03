@@ -9,7 +9,7 @@ With the data stored in Elasticsearch, you can use applications like Kibana or G
 
 ## Requirements
 
-* Python >= 3.10
+* [uv](https://github.com/astral-sh/uv)
 * Elasticsearch (in case you want to use the Elasticsearch output)
 * Redis (in case you want to use the Redis output)
 * Telegram API ID and API Hash (create one at [my.telegram.org](https://my.telegram.org))
@@ -17,7 +17,7 @@ With the data stored in Elasticsearch, you can use applications like Kibana or G
 ## Installation
 
 * Download the latest release
-* Install the required Python modules using pip: `pip3 install -r requirements.txt`
+* Install the required Python dependencies using uv: `uv sync`
 * Copy the provided config.sample.yml to config.yml and edit it to fit your needs
 
 ## Outputs
