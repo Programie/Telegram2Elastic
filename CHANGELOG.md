@@ -1,10 +1,11 @@
 # Changelog
 
-## [4.0.0] - pending
+## [4.0.0] - 2026-04-03
 
 * Optional periodic import of history while listening for messages
 * Switch to using uv as Python package manager
 * Use Alpine as base image for Docker image (decreases image size from over 900 MB down to around 180 MB)
+* Rename development branch from `master` to `main`
 
 ## [3.1.2] - 2023-11-08
 
