@@ -6,11 +6,11 @@ jobs:
   pytest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-          cache: 'pip'
-          cache-dependency-path: 'requirements*.txt'
-      - run: pip install -r requirements.txt -r requirements-dev.txt
-      - run: pytest
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6.5
+
+      - name: Execute tests
+        run: uv run pytest
