@@ -535,7 +535,9 @@ class TelegramReader:
         await self.client.catch_up()
 
     async def periodic_import(self, config: dict):
-        interval = TimeInterval.parse(config.get("interval", "1d"))
+        interval_string = config.get("interval", "1d")
+        initial_delay = TimeInterval.parse(config.get("initial_delay", interval_string))
+        interval = TimeInterval.parse(interval_string)
 
         time_range = config.get("range")
         if time_range:
@@ -545,11 +547,11 @@ class TelegramReader:
             time_range = None
             time_range_string = "all"
 
-        logging.log(LOG_LEVEL_INFO, f"Scheduling periodic import (interval: {interval.format_human_readable()}, range: {time_range_string})")
+        logging.log(LOG_LEVEL_INFO, f"Scheduling periodic import (initial delay: {initial_delay.format_human_readable()}, interval: {interval.format_human_readable()}, range: {time_range_string})")
+
+        await asyncio.sleep(initial_delay.seconds)
 
         while True:
-            await asyncio.sleep(interval.seconds)
-
             logging.log(LOG_LEVEL_INFO, "Starting periodic import")
 
             start_date = None
@@ -558,6 +560,8 @@ class TelegramReader:
             await self.import_history(start_date)
 
             logging.log(LOG_LEVEL_INFO, f"Periodic import completed, next periodic import at {datetime.now() + interval.timedelta()}")
+
+            await asyncio.sleep(interval.seconds)
 
     def is_chat_enabled(self, chat, chat_types=None):
         if chat.id in self.additional_chats:

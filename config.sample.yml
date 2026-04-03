@@ -22,6 +22,9 @@ telegram:
 # The time properties support multiple units: y (years), mo (months), w (weeks), d (days), h (hours), m (minutes), s (seconds)
 # Those units can be combined, i.e. "1d12h" means "1 days and 12 hours".
 periodic_import:
+  # Delay to wait before initial import (after startup), defaults to interval if not specified
+  initial_delay: 1d
+
   # Interval between periodic imports
   interval: 1d
 
