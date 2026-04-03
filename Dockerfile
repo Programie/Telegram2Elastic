@@ -12,6 +12,8 @@ WORKDIR /app
 
 RUN uv sync --no-dev
 
+ENV PATH="/app/.venv/bin:$PATH"
+
 VOLUME /sessions
 
 ENTRYPOINT ["/app/telegram2elastic.py"]
