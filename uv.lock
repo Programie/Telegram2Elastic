@@ -43,7 +43,7 @@ wheels = [
 ]
 
 [[package]]
-name = "elasticsearch"
+name = "elasticsearch8"
 version = "8.19.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
@@ -51,9 +51,23 @@ dependencies = [
     { name = "python-dateutil" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/6b/79/365e306017a9fcfbbefab1a3b588d2404bea8806b36766ff0f886509a20e/elasticsearch-8.19.3.tar.gz", hash = "sha256:e84dd618a220cac25b962790085045dd27ac72e01c0a5d81bd29a2d47a71f03f", size = 800298, upload-time = "2025-12-23T12:56:00.72Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/53/6a/1a7d54c1aee0a96870aa54375da4b4a6d5390dd767c917de58242d3d49b8/elasticsearch8-8.19.3.tar.gz", hash = "sha256:7effe95b360241b6d56ef68219037a90ad0f56723614db54bbe57d33058402f4", size = 800428, upload-time = "2025-12-23T12:56:01.961Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/56/0f/ac126833c385b06166d41c486e4911f58ad7791fd1a53dd6e0b8d16ff214/elasticsearch-8.19.3-py3-none-any.whl", hash = "sha256:fe1db2555811192e8a1be78b01234d0a49d32b185ea7eeeb6f059331dee32838", size = 952820, upload-time = "2025-12-23T12:55:56.796Z" },
+    { url = "https://files.pythonhosted.org/packages/90/ff/1033bf0048d8492c1bcfcf058511dff119895ba50888c7a6e364aa3b168f/elasticsearch8-8.19.3-py3-none-any.whl", hash = "sha256:4b52e59e68aea6f59bf37c28f6f4512333302dd8a52e26c17d0f10c076d833a1", size = 953171, upload-time = "2025-12-23T12:55:58.781Z" },
+]
+
+[[package]]
+name = "elasticsearch9"
+version = "9.0.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "elastic-transport" },
+    { name = "python-dateutil" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/66/83/7bcf5587a37dc4885198acfc32fbf5df6f2cc4e209b7627ab0618be16bb1/elasticsearch9-9.0.5.tar.gz", hash = "sha256:d4de4cf334b2f7dd4b75f29d1e3e387c75949e30ee524f87af521c97de1c46a4", size = 848081, upload-time = "2026-01-05T12:41:11.786Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b4/80/dfd5bd5085616eb73ad25ae539fc5b13bf318bcc6defb02df7e41f97b120/elasticsearch9-9.0.5-py3-none-any.whl", hash = "sha256:25be344128fc00d68a666e51fc921f09931d2c56b19b016692b1d3094fa88cff", size = 927968, upload-time = "2026-01-05T12:41:09.205Z" },
 ]
 
 [[package]]
@@ -241,7 +255,8 @@ name = "telegram2elastic"
 version = "4.0.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "elasticsearch" },
+    { name = "elasticsearch8" },
+    { name = "elasticsearch9" },
     { name = "pyyaml" },
     { name = "redis" },
     { name = "telethon" },
@@ -254,7 +269,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "elasticsearch", specifier = ">=7,<9" },
+    { name = "elasticsearch8", specifier = ">=8.19.3" },
+    { name = "elasticsearch9", specifier = ">=9.0.5" },
     { name = "pyyaml", specifier = ">=5,<7" },
     { name = "redis", specifier = "~=4.5.1" },
     { name = "telethon", specifier = "~=1.42.0,<2" },

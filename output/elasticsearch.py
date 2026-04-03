@@ -1,5 +1,3 @@
-from elasticsearch import Elasticsearch
-
 from telegram2elastic import OutputWriter
 
 
@@ -7,13 +5,23 @@ class Writer(OutputWriter):
     def __init__(self, config: dict):
         super().__init__(config)
 
+        elasticsearch_version = config.get("version", 8)
+
+        match elasticsearch_version:
+            case 8:
+                from elasticsearch8 import Elasticsearch
+            case 9:
+                from elasticsearch9 import Elasticsearch
+            case _:
+                raise RuntimeError(f"Invalid Elasticsearch version: {elasticsearch_version}")
+
         self.index_format = config.get("index_format", "telegram-%Y.%m.%d")
 
         username = config.get("username")
         password = config.get("password")
 
         if username is not None and password is not None:
-            http_auth = [username, password]
+            http_auth = (str(username), str(password))
         else:
             http_auth = None
 

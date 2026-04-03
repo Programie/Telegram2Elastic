@@ -93,6 +93,9 @@ outputs:
   - type: elasticsearch
     host: http://your-elastic-host:9200
 
+    # Version of the Elasticsearch client to use (could be 8 or 9)
+    version: 8
+
     # Username and password used to authenticate at Elasticsearch (optional)
     username: <Elasticsearch user>
     password: <Elasticsearch password>

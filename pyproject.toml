@@ -5,7 +5,8 @@ description = "A simple Telegram client writing chat messages to an Elasticsearc
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "elasticsearch>=7,<9",
+    "elasticsearch8>=8.19.3",
+    "elasticsearch9>=9.0.5",
     "pyyaml>=5,<7",
     "redis~=4.5.1",
     "telethon~=1.42.0,<2",
