@@ -1,5 +1,10 @@
 # Changelog
 
+## [4.0.1] - 2026-05-11
+
+* Update urllib3 dependency used by elasticsearch output
+  * Fixes a vulnerability: Decompression-bomb safeguards bypassed in parts of the streaming API
+
 ## [4.0.0] - 2026-04-03
 
 * Optional periodic import of history while listening for messages
